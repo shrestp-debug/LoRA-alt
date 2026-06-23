@@ -43,14 +43,15 @@ def safelora_eval_context(model, safety_directions):
             if match_key is None:
                 continue
                 
-            V = safety_directions[match_key].to(module.base_layer.weight.device).to(module.base_layer.weight.dtype)
-            
             A = module.lora_A[adapter_name].weight # shape: (r, d_in)
             B = module.lora_B[adapter_name].weight # shape: (d_out, r)
             scaling = module.scaling[adapter_name]
             
             # Compute full cumulative delta
             delta_W = (B @ A) * scaling # shape: (d_out, d_in)
+            
+            # Match V to the dtype and device of delta_W (which is likely float32)
+            V = safety_directions[match_key].to(device=delta_W.device, dtype=delta_W.dtype)
             
             # Project delta_W orthogonal to V
             # delta_W_safe = delta_W - (delta_W @ V) @ V^T
@@ -109,13 +110,16 @@ def apply_salora(model, safety_directions):
             if match_key is None:
                 continue
                 
-            V = safety_directions[match_key].to(module.base_layer.weight.device).to(module.base_layer.weight.dtype)
+            V_base = safety_directions[match_key]
             
             lora_A = module.lora_A[adapter_name]
             
             # The hook modifies the input `x` before it hits `lora_A`
-            def pre_hook(mod, args, V=V):
+            def pre_hook(mod, args, V_base=V_base):
                 x = args[0] # shape: (batch, seq, d_in)
+                
+                # Match V to the dtype and device of x dynamically
+                V = V_base.to(device=x.device, dtype=x.dtype)
                 
                 # S(x) = x - (x @ V) @ V^T
                 x_V = torch.matmul(x, V) # (batch, seq, k)
