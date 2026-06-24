@@ -63,12 +63,13 @@ def generate_plots():
     methods = [
         {"id": "vanilla", "label": "Vanilla LoRA", "marker": "o"},
         {"id": "safelora", "label": "SafeLoRA (adapted)", "marker": "s"},
-        {"id": "salora", "label": "SaLoRA", "marker": "^"}
+        {"id": "salora", "label": "SaLoRA", "marker": "^"},
+        {"id": "simplectrl", "label": "Adaptive Control (Phase 5)", "marker": "D"}
     ]
     
     # Harmonious colors for different methods
-    colors_safety = {"vanilla": "#EF4444", "safelora": "#F59E0B", "salora": "#10B981"} # Red, Amber, Emerald
-    colors_task = {"vanilla": "#3B82F6", "safelora": "#8B5CF6", "salora": "#06B6D4"}   # Blue, Purple, Cyan
+    colors_safety = {"vanilla": "#EF4444", "safelora": "#F59E0B", "salora": "#10B981", "simplectrl": "#EC4899"} # Red, Amber, Emerald, Pink
+    colors_task = {"vanilla": "#3B82F6", "safelora": "#8B5CF6", "salora": "#06B6D4", "simplectrl": "#F43F5E"}   # Blue, Purple, Cyan, Rose
     
     has_data = False
 
